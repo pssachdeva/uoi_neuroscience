@@ -14,6 +14,12 @@ from sem import SEMSolver
 
 
 def main(args):
+    # check random state
+    if args.random_state == -1:
+        random_state = None
+    else:
+        random_state = args.random_state
+
     # create data extraction object
     pvc = PVC11(data_path=args.data_path)
     # get response matrix
@@ -33,7 +39,7 @@ def main(args):
         class_labels=class_labels,
         targets=None,
         n_folds=args.n_folds,
-        random_state=args.random_state,
+        random_state=random_state,
         metrics=['r2', 'BIC', 'AIC'],
 
         # general options
@@ -71,7 +77,7 @@ if __name__ == '__main__':
     parser.add_argument('--results_group')
     parser.add_argument('--method')
     parser.add_argument('--n_folds', type=int, default=10)
-    parser.add_argument('--random_state')
+    parser.add_argument('--random_state', type=int, default=-1)
     parser.add_argument('--transform', default='square_root')
     # fitter object arguments
     parser.add_argument('--normalize', action='store_true')
