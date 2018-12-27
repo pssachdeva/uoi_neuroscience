@@ -23,8 +23,9 @@ def main(args):
         model='c',
         method=args.method,
         class_labels=class_labels,
-        targets=None,
+        targets=0,
         n_folds=args.n_folds,
+        random_state=args.random_state,
         metrics=['r2', 'BIC', 'AIC'],
         # general options
         normalize=args.normalize,
@@ -36,9 +37,14 @@ def main(args):
     group = results_file.create_group(args.results_group)
     # place results in group
     for key in results.keys():
-        group[key] = results[key]
+        if key == 'training_folds' or key == 'test_folds':
+            folds_group = group.create_group(key)
+            for fold_key, fold_val in results[key].items():
+                folds_group[fold_key] = fold_val
+        else:
+            group[key] = results[key]
 
-    return results
+    results_file.close()
 
 
 if __name__ == '__main__':
@@ -50,8 +56,11 @@ if __name__ == '__main__':
     parser.add_argument('--method')
     parser.add_argument('--n_folds', type=int)
     # optional arguments
-    parser.add_argument('--transform', 'square_root')
+    parser.add_argument('--transform', default='square_root')
     parser.add_argument('--normalize', action='store_true')
     parser.add_argument('--estimation_score', default='r2')
+    parser.add_argument('--random_state')
 
     args = parser.parse_args()
+
+    main(args)
