@@ -37,7 +37,7 @@ def main(args):
         model='c',
         method=args.method,
         class_labels=class_labels,
-        targets=None,
+        targets=0,
         n_folds=args.n_folds,
         random_state=random_state,
         metrics=['r2', 'BIC', 'AIC'],
@@ -52,10 +52,16 @@ def main(args):
         max_iter=args.max_iter,
 
         # UoI Lasso specific
+        n_boots_sel=args.n_boots_sel,
+        n_boots_est=args.n_boots_est,
+        selection_frac=args.selection_frac,
+        estimation_frac=args.estimation_frac,
+        n_lambdas=args.n_lambdas,
+        stability_selection=args.stability_selection,
         estimation_score=args.estimation_score
     )
 
-    results_file = h5py.File(args.results_path, 'w')
+    results_file = h5py.File(args.results_path, 'a')
     group = results_file.create_group(args.results_group)
     # place results in group
     for key in results.keys():
@@ -86,6 +92,12 @@ if __name__ == '__main__':
     parser.add_argument('--cv', type=int, default=10)
     parser.add_argument('--max_iter', type=int, default=5000)
     # UoI Lasso arguments
+    parser.add_argument('--n_boots_sel', type=int, default=50)
+    parser.add_argument('--n_boots_est', type=int, default=50)
+    parser.add_argument('--selection_frac', type=float, default=0.8)
+    parser.add_argument('--estimation_frac', type=float, default=0.8)
+    parser.add_argument('--n_lambdas', type=int, default=48)
+    parser.add_argument('--stability_selection', type=float, default=1.)
     parser.add_argument('--estimation_score', default='r2')
 
     args = parser.parse_args()
