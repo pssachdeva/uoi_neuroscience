@@ -41,6 +41,7 @@ def main(args):
         n_folds=args.n_folds,
         random_state=random_state,
         metrics=['r2', 'BIC', 'AIC'],
+        verbose=args.verbose,
 
         # general options
         fit_intercept=True,
@@ -79,6 +80,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_folds', type=int, default=10)
     parser.add_argument('--random_state', type=int, default=-1)
     parser.add_argument('--transform', default='square_root')
+    parser.add_argument('--verbose', action='store_true')
     # fitter object arguments
     parser.add_argument('--normalize', action='store_true')
     parser.add_argument('--cv', type=int, default=10)
