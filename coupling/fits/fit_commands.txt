@@ -1,0 +1,5 @@
+Monkey 1, UoI_Lasso, R2
+python3 pvc11_coupling.py --data_path=/home/psachdeva/data/pvc11/data/spikes_gratings/data_monkey1_gratings.mat --results_path=fits/monkey1.h5 --results_group=UoI_Lasso_R2 --method=UoI_Lasso --n_folds=10 --random_state=2332 --transform=square_root --verbose --normalize --estimation_score=r2
+
+Monkey 1, UoI_Lasso, AIC
+python3 pvc11_coupling.py --data_path=/home/psachdeva/data/pvc11/data/spikes_gratings/data_monkey1_gratings.mat --results_path=fits/monkey1.h5 --results_group=UoI_Lasso_AIC --method=UoI_Lasso --n_folds=10 --random_state=2332 --transform=square_root --verbose --normalize --estimation_score=AIC
