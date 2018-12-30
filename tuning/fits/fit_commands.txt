@@ -1,0 +1,5 @@
+Cell 2, Recording 0, Lasso
+python3 ret1_strf_script.py --data_path=/Users/psachdeva/data/ret1/data/20080516_R1.mat --random_path=/Users/psachdeva/data/ret1/data/ran1.bin --results_path=fits/20080516_R1.h5 --results_group=Lasso --method=Lasso --verbose --normalize --cv=5 --cell=2 --recording_idx=0 --window_length=0.33
+
+Cell 2, Recording 0, UoI_Lasso (AIC)
+python3 ret1_strf_script.py --data_path=/Users/psachdeva/data/ret1/data/20080516_R1.mat --random_path=/Users/psachdeva/data/ret1/data/ran1.bin --results_path=fits/20080516_R1.h5 --results_group=UoI_AIC --method=UoI_Lasso --cell=2 --recording_idx=0  --window_length=0.33 --verbose --normalize --estimation_score=AIC
