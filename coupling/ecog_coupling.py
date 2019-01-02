@@ -21,16 +21,16 @@ def main(args):
         random_state = args.random_state
 
     # create data extraction object
-    pvc = ECOG(data_path=args.data_path)
+    ecog = ECOG(data_path=args.data_path)
     # get response matrix
-    Y = pvc.create_response_matrix(
+    Y = ecog.get_response_matrix(
         bounds=(40, 60),
         band=args.band,
         electrodes=None,
         transform=None
     )
     # for stratification of folds
-    class_labels = pvc.get_design_matrix(form='label')
+    class_labels = ecog.get_design_matrix(form='id')
 
     # create solver object
     solver = SEMSolver(Y=Y)
@@ -40,7 +40,7 @@ def main(args):
         model='c',
         method=args.method,
         class_labels=class_labels,
-        targets=None,
+        targets=0,
         n_folds=args.n_folds,
         random_state=random_state,
         metrics=['r2', 'BIC', 'AIC'],
@@ -86,6 +86,7 @@ if __name__ == '__main__':
     parser.add_argument('--results_path')
     parser.add_argument('--results_group')
     parser.add_argument('--method')
+    parser.add_argument('--band')
     parser.add_argument('--n_folds', type=int, default=10)
     parser.add_argument('--random_state', type=int, default=-1)
     parser.add_argument('--transform', default='square_root')
