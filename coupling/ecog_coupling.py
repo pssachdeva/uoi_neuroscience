@@ -40,7 +40,7 @@ def main(args):
         model='c',
         method=args.method,
         class_labels=class_labels,
-        targets=0,
+        targets=None,
         n_folds=args.n_folds,
         random_state=random_state,
         metrics=['r2', 'BIC', 'AIC'],
