@@ -9,6 +9,3 @@ python3 pvc11_coupling.py --data_path=/home/psachdeva/data/pvc11/data/spikes_gra
 
 Monkey 1, UoI_Lasso, BIC
 python3 pvc11_coupling.py --data_path=/home/psachdeva/data/pvc11/data/spikes_gratings/data_monkey1_gratings.mat --results_path=fits/monkey1.h5 --results_group=UoI_Lasso_BIC --method=UoI_Lasso --n_folds=10 --random_state=2332 --transform=square_root --verbose --normalize --estimation_score=BIC
-
-
-python3 ecog_coupling.py --data_path=/home/psachdeva/data/ECoG/data/r32_b7.mat --results_path=fits/ecog.h5 --results_group=Lasso_HG --method=Lasso --band=HG --n_folds=10 --random_state=2332 --verbose --normalize
