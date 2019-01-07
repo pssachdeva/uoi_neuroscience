@@ -94,8 +94,8 @@ if __name__ == '__main__':
     parser.add_argument('--cv', type=int, default=10)
     parser.add_argument('--max_iter', type=int, default=5000)
     # UoI Lasso arguments
-    parser.add_argument('--n_boots_sel', type=int, default=50)
-    parser.add_argument('--n_boots_est', type=int, default=50)
+    parser.add_argument('--n_boots_sel', type=int, default=30)
+    parser.add_argument('--n_boots_est', type=int, default=30)
     parser.add_argument('--selection_frac', type=float, default=0.8)
     parser.add_argument('--estimation_frac', type=float, default=0.8)
     parser.add_argument('--n_lambdas', type=int, default=48)
