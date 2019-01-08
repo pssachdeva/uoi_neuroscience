@@ -1,2 +1,6 @@
 .DS_Store
 .ipynb_checkpoints
+*.aux
+*.pdf
+*.log
+*.synctex.gz
