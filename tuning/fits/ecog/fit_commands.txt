@@ -1,0 +1,13 @@
+ECoG, BF, Lasso
+python3 ecog_tuning.py --data_path=/home/psachdeva/data/ECoG/data/r32_b7.mat --results_path=fits/ecog.h5 --results_group=HG_bf_Lasso --method=Lasso --form=bf --n_gaussians=7 --band=HG --n_folds=10 --random_state=2332 --verbose --normalize --cv=10
+
+ECoG, BF, UoI_Lasso, R2
+python3 ecog_tuning.py --data_path=/home/psachdeva/data/ECoG/data/r32_b7.mat --results_path=fits/ecog.h5 --results_group=HG_bf_UoI_Lasso_R2 --method=UoI_Lasso --form=bf --n_gaussians=7 --band=HG --n_folds=10 --random_state=2332 --verbose --normalize --estimation_score=r2
+
+ECoG, BF, UoI_Lasso, AIC
+python3 ecog_tuning.py --data_path=/home/psachdeva/data/ECoG/data/r32_b7.mat --results_path=fits/ecog.h5 --results_group=HG_bf_UoI_Lasso_AIC --method=UoI_Lasso --form=bf --n_gaussians=7 --band=HG --n_folds=10 --random_state=2332 --verbose --normalize --estimation_score=AIC
+
+ECoG, BF, UoI_Lasso, BIC
+python3 ecog_tuning.py --data_path=/home/psachdeva/data/ECoG/data/r32_b7.mat --results_path=fits/ecog.h5 --results_group=HG_bf_UoI_Lasso_BIC --method=UoI_Lasso --form=bf --n_gaussians=7 --band=HG --n_folds=10 --random_state=2332 --verbose --normalize --estimation_score=BIC
+
+python3 ecog_tuning.py --data_path=/Users/psachdeva/data/ECoG/data/r32_b7.mat --results_path=fits/ecog.h5 --results_group=HG_bf_Lasso --method=Lasso --form=bf --n_gaussians=7 --band=HG --n_folds=10 --random_state=2332 --verbose --normalize --cv=10

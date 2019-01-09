@@ -1,13 +1,11 @@
 NHP, M1, indy_20160411_01, Lasso
-python3 nhp_coupling.py --data_path=/home/psachdeva/data/NHP/indy_20160411_01.mat --results_path=fits/nhp/indy_20160411_01.h5 --bin_width=0.5 --results_group=Lasso --method=Lasso --n_folds=10 --random_state=2332 --transform=square_root --verbose --normalize
+python3 nhp_coupling.py --data_path=/home/psachdeva/data/NHP/indy_20160411_01.mat --results_path=fits/nhp/indy_20160411_01.h5 --bin_width=0.5 --results_group=Lasso --method=Lasso --cv=10 --n_folds=10 --random_state=2332 --transform=square_root --verbose
 
 NHP, M1, indy_20160411_01, UoI Lasso R2
-python3 nhp_coupling.py --data_path=/home/psachdeva/data/NHP/indy_20160411_01.mat --results_path=fits/nhp/indy_20160411_01.h5 --bin_width=0.5 --results_group=UoI_Lasso_R2 --method=UoI_Lasso --n_folds=10 --random_state=2332 --transform=square_root --verbose --normalize --estimation_score=r2
+python3 nhp_coupling.py --data_path=/home/psachdeva/data/NHP/indy_20160411_01.mat --results_path=fits/nhp/indy_20160411_01.h5 --bin_width=0.5 --results_group=UoI_Lasso_R2 --method=UoI_Lasso --n_folds=10 --random_state=2332 --transform=square_root --verbose --n_boots_est=50 --estimation_score=r2
 
 NHP, M1, indy_20160411_01, UoI Lasso AIC
-python3 nhp_coupling.py --data_path=/home/psachdeva/data/NHP/indy_20160411_01.mat --results_path=fits/nhp/indy_20160411_01.h5 --bin_width=0.5 --results_group=UoI_Lasso_AIC --method=UoI_Lasso --n_folds=10 --random_state=2332 --transform=square_root --verbose --normalize --estimation_score=AIC
+python3 nhp_coupling.py --data_path=/home/psachdeva/data/NHP/indy_20160411_01.mat --results_path=fits/nhp/indy_20160411_01.h5 --bin_width=0.5 --results_group=UoI_Lasso_AIC --method=UoI_Lasso --n_folds=10 --random_state=2332 --transform=square_root --verbose --n_boots_est=50 --estimation_score=AIC
 
 NHP, M1, indy_20160411_01, UoI Lasso BIC
-python3 nhp_coupling.py --data_path=/home/psachdeva/data/NHP/indy_20160411_01.mat --results_path=fits/nhp/indy_20160411_01.h5 --bin_width=0.5 --results_group=UoI_Lasso_BIC --method=UoI_Lasso --n_folds=10 --random_state=2332 --transform=square_root --verbose --normalize --estimation_score=BIC
-
-
+python3 nhp_coupling.py --data_path=/home/psachdeva/data/NHP/indy_20160411_01.mat --results_path=fits/nhp/indy_20160411_01.h5 --bin_width=0.5 --results_group=UoI_Lasso_BIC --method=UoI_Lasso --n_folds=10 --random_state=2332 --transform=square_root --verbose --n_boots_est=50 --estimation_score=BIC
