@@ -109,20 +109,44 @@ We calculated each response variable as the peak response of the $z$-scored high
 	\vspace{-25pt}
 	\centering
 	\scalebox{0.26}{\includegraphics{img/coupling/nhp_indy_20160411_01.pdf}}
-	\caption{Lasso ($x$-axis) vs. the three variants of UoI$_{\text{Lasso}}$ ($y$-axes) on nonhuman primate coupling models..}
+	\caption{Lasso ($x$-axis) vs. the three variants of UoI$_{\text{Lasso}}$ ($y$-axes) on nonhuman primate coupling models.}
 	\label{fig:nhp}
 \end{wrapfigure}
 This dataset was recorded by the Sabes Lab (obtained through Zenodo). Single-unit responses were obtained from non-human primate primary motor cortex during self-paced reaches to target on a grid. The primate was prompted to reach for a specific target without gaps or pre-movement delay intervals. We binned the total spike trains for all the recorded single-units to widths of 500 milliseconds. According to this binning, there were 1716 samples for 196 single-units.
 
 We caculated each response variable as the square-root of the spike count in the bin. Thus, the coupling model predicts whether the (square-rooted) spike count in a given bin can be described linearly by the (square-rooted) spike counts according to the remaining neurons in the population. 
 
-The performance of Lasso compared to the three variants of UoI$_{\text{Lasso}}$ is depicted in Figure \ref{fig:nhp} for a given primate (Indy) and session (04-11-2016-1). Interestingly, UoI$_{\text{Lasso}}$ provides sparser models except for a subset of neurons under the UoI$_{\text{Lasso}}-R^2$ variant. However, UoI$_{\text{Lasso}}$ still maintains predictive performance, resulting in simpler but predictive models.
-
+The performance of Lasso compared to the three variants of UoI$_{\text{Lasso}}$ is depicted in Figure \ref{fig:nhp} for a given primate (Indy) and session (04-11-2016-1). Interestingly, UoI$_{\text{Lasso}}$ provides sparser models except for a subset of neurons under the UoI$_{\text{Lasso}}-R^2$ variant. However, UoI$_{\text{Lasso}}$ still maintains predictive performance, resulting in simpler but predictive models.\\
 
 \newpage
 
 \section{Tuning}
+\subsection{A1}
 
+\begin{wrapfigure}{r}{0.35\textwidth}
+	\vspace{-40pt}
+	\centering
+	\scalebox{0.26}{\includegraphics{img/tuning/ecog_hg.pdf}}
+	\caption{Lasso ($x$-axis) vs. the three variants of UoI$_{\text{Lasso}}$ ($y$-axes) for auditory tuning data.}
+	\label{fig:ecog_tuning_scores}
+	\vspace{-30pt}
+\end{wrapfigure}
+We fit tuning curves to the auditory $\mu$ECoG recordings using Gaussian basis functions tiling the log-frequency axis. Specifically, the response $y_i$ for a given electrode was modeled as
+\begin{align}
+y_i(f) &= a_0 + \sum_{j=1}^k a_j \exp\left(-\frac{(f - f_j)^2}{2\sigma_i^2}\right)
+\end{align}
+where $f_j$ are spread evenly in log-frequency, $k$ is the number of Gaussians (features), and $\sigma_i$ is the spread of the Gaussian basis functions, generally chosen uniformly across all electrodes. The relevant tuning parameters to be fit are the $a_j$. For the $\mu$-ECoG data, we used 7 Gaussians spread evenly from  0.5 to 32 kHz, and $\sigma_i^2=0.64$ octaves. We fit this model using Lasso and the UoI$_{\text{Lasso}}$ variants.
+
+The model performance is shown in Figure \ref{fig:ecog_tuning_scores}. Note that the maximum number of features that can be used is 7, so differences in selection ratio denote a difference in only a few features. In this case, UoI$_{\text{Lasso}}-R^2$ uses fewer features to achieve the same predictive performance for almost all electrodes. There is little different in the information criteria because the number of features is small compared to the amount of data.
+
+In addition, we also examined tuning curves across the $\mu$ECoG grid. The curves are shown in Figure \ref{fig:ecog_tuning_curves}, plotted against log-frequency. Lasso and UoI$_{\text{Lasso}}$ generally agree on almost all electrodes. Both fitting procedures result in broad tonotopy across the grid. For some electrodes, UoI$_{\text{Lasso}}-$BIC (dashed red) zeros out all coefficients except the intercept. In these cases, the penalty for requiring parameters is greater than the relatively weak model performance (observe the scale in Figure \ref{fig:ecog_tuning_scores}).
+\begin{figure}[b!]
+	\centering
+	\scalebox{0.435}{\includegraphics{img/tuning/ecog_grid.pdf}}
+
+	\caption{Auditory tuning curves plotted against log-frequency for each electrode on the $\mu$ECoG grid. Three separate fits are shown: Lasso (black), UoI$_{\text{Lasso}}-R^2$ (red) and UoI$_{\text{Lasso}}-$BIC (dashed red).}
+	\label{fig:ecog_tuning_curves}
+\end{figure}
 
 
 \end{document}
