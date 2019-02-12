@@ -149,5 +149,40 @@ In addition, we also examined tuning curves across the $\mu$ECoG grid. The curve
 \end{figure}
 
 \section{Classification}
+\subsection{Recordings from Basal Ganglia}
+We consider a dataset from the Berke lab involving recordings from the basal ganglia of rats. Specifically, these datasets are taken from the  globus pallidus (GP) and substantia nigra pars reticulata (SNr). These regions generally participate in race pathways during decision making. The task that allowed the experimenters to assess these pathways is as follows:
+\begin{itemize}
+	\item A rat is prompted to enter its head in one of three ports using a visual cue. 
+	\item Once the rat has placed its head through the port, it is then prompted, with a tone, to either go to the left port or right port. The frequency of the tone indicates whether it should be left or right (GO condition).
+	\item On some fraction of the trials, the direction tone will be followed by a white noise burst, indicating that the rat should remain in the center port (STOP condition).
+	\item In some trials, the rat moves before the GO tone occurs, which is considered a pre-tone failure.
+\end{itemize}
+Thus, there are several decisions that can be predicted based on the neural recordings:
+\begin{itemize}
+	\item Can we predict whether the rat made a pre-tone error according to the neural activity? (432 trials, 18/36 features).
+	\item Can we predict whether the trial was a GO or STOP trial based on the neural activity? (326 trials, 18/36 features).
+	\item Can we predict whether the trial was a left or right GO trial based on the neural activity? (186 trials, 18/36 features).
+\end{itemize}
 
+\subsection{Prediction of pre-tone failure}
+We used neural activity to predict whether a rat would fail on a trial pre-tone. Specifically, we examined spike counts of the 18 units in GP in a timespan following the point when the rat enters the center port. The delays between the trials on which the rat failed pre-tone and succeeded pre-tone had different lengths of time between the rat entering and exiting the center port (Figure \ref{fig:classification}, left). 
+
+\begin{figure}[b]
+	\centering
+	\includegraphics[scale=0.40]{img/classification/delay.pdf}
+	\includegraphics[scale=0.40]{img/classification/gp1.pdf}
+	\caption{\textbf{Left:} Time between center-in and center-out for pre-tone failures (red) and successes (blue). \textbf{Right:} Prediction accuracy by fitted logistic regression model on validation set (5 folds). Red line is chance (only predicting pre-tone success).}
+	\label{fig:classification}
+\end{figure}
+
+We examined the spike counts in the period $(C_0, C_0 + \Delta t)$ where $C_0$ is the center-in time of the rat and $\Delta t \in \left\{0.1, 0.2, \ldots 1.0 \right\}$. We used a logistic regression model with the spike counts of each neuron as the predictors, and the pre-tone success/failure as the response. In Figure \ref{fig:classification}, right, we show the test set performance of the model across the 5-folds during cross-validation over the different values of $\Delta t$. There appears to be no strong modulation in the classifier performance, and it performs marginally better than if it had always selected pre-tone success (red line).
+
+Lastly, we examined the coefficients of the logistic regression models as a function of $\Delta t$. The coefficients were somewhat sparse (4/18 features were consistently set to zero). Furthermore, the remaining coefficients were relatively stable for different values of $\Delta t$ (Figure 7).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.40]{img/classification/coefs.pdf}
+	\caption{Median coefficient values as a function of $\Delta t$ for the 18 well isolated units.}
+	\label{fig:classification}
+\end{figure}
 \end{document}
