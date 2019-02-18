@@ -3,17 +3,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_tuning_grid(fits_path, axes=None):
+def plot_tuning_grid(fits_path, base, axes=None):
     if axes is None:
         fig, axes = plt.subplots(4, 3, figsize=(9, 12))
 
     fits = h5py.File(fits_path, 'r')
 
     # load different fits
-    lasso = fits['bf_Lasso']
-    uoi_r2 = fits['bf_UoI_Lasso_R2']
-    uoi_aic = fits['bf_UoI_Lasso_AIC']
-    uoi_bic = fits['bf_UoI_Lasso_BIC']
+    lasso = fits[base + 'Lasso']
+    uoi_r2 = fits[base + 'UoI_Lasso_R2']
+    uoi_aic = fits[base + 'UoI_Lasso_AIC']
+    uoi_bic = fits[base + 'UoI_Lasso_BIC']
     uois = [uoi_r2, uoi_aic, uoi_bic]
 
     n_targets = lasso['tuning_coefs'].shape[-1]
