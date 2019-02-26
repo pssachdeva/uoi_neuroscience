@@ -3,6 +3,49 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def plot_metric(
+    fits_path, metric, x='Lasso', y='UoI_Lasso_R2', ax=None, color='k',
+    marker='o'
+):
+    if ax is None:
+        fig, ax = plt.subplots(1, figsize=(2, 2))
+
+    fits = h5py.File(fits_path, 'r')
+    x_data = fits[x]
+    y_data = fits[y]
+
+    n_targets = x_data['tuning_coefs'].shape[-1] + 1
+
+    if metric == 'selection_ratio':
+        x_plot = np.mean((
+            np.count_nonzero(x_data['tuning_coefs'][:], axis=2) + 1)/n_targets,
+            axis=0
+        )
+        y_plot = np.mean((
+            np.count_nonzero(y_data['tuning_coefs'][:], axis=2) + 1)/n_targets,
+            axis=0
+        )
+
+    elif metric == 'r2' or metric == 'BIC':
+        x_plot = np.mean(x_data[metric][:], axis=0)
+        y_plot = np.mean(y_data[metric][:], axis=0)
+
+    else:
+        raise ValueError('Metric not available.')
+
+    ax.scatter(
+        x_plot,
+        y_plot,
+        alpha=0.5,
+        color=color,
+        edgecolor='w',
+        marker=marker
+    )
+
+    return ax
+
+
+
 def plot_tuning_grid(fits_path, base, axes=None):
     if axes is None:
         fig, axes = plt.subplots(4, 3, figsize=(9, 12))

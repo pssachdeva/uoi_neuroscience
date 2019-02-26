@@ -2,6 +2,90 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 
+from scipy.stats import wilcoxon
+
+
+def get_dataset(fits_path, metric, key):
+    fits = h5py.File(fits_path, 'r')
+    data = fits[key]
+
+    n_targets = data['coupling_coefs'].shape[-1]
+
+    if metric == 'selection_ratio':
+        x = np.mean(np.count_nonzero(
+            data['coupling_coefs'][:], axis=2
+        )/n_targets, axis=0)
+
+    elif metric == 'r2' or metric == 'BIC':
+        x = np.mean(data[metric][:], axis=0)
+    else:
+        raise ValueError('Metric not available.')
+
+    return x
+
+
+def wilcoxon_coupling(fits_path, metric, x='Lasso', y='UoI_Lasso_R2'):
+    fits = h5py.File(fits_path, 'r')
+    x_data = fits[x]
+    y_data = fits[y]
+
+    n_targets = x_data['coupling_coefs'].shape[-1]
+
+    if metric == 'selection_ratio':
+        x = np.mean(np.count_nonzero(
+            x_data['coupling_coefs'][:], axis=2
+        )/n_targets, axis=0)
+        y = np.mean(np.count_nonzero(
+            y_data['coupling_coefs'][:], axis=2
+        )/n_targets, axis=0)
+
+    elif metric == 'r2' or metric == 'BIC':
+        x = np.mean(x_data[metric][:], axis=0)
+        y = np.mean(y_data[metric][:], axis=0)
+    else:
+        raise ValueError('Metric not available.')
+
+    return wilcoxon(x, y)
+
+
+def plot_metric(
+    fits_path, metric, x='Lasso', y='UoI_Lasso_R2', ax=None, color='k',
+    marker='o'
+):
+    if ax is None:
+        fig, ax = plt.subplots(1, figsize=(2, 2))
+
+    fits = h5py.File(fits_path, 'r')
+    x_data = fits[x]
+    y_data = fits[y]
+
+    n_targets = x_data['coupling_coefs'].shape[-1]
+
+    if metric == 'selection_ratio':
+        x_plot = np.mean(np.count_nonzero(
+            x_data['coupling_coefs'][:], axis=2
+        )/n_targets, axis=0)
+        y_plot = np.mean(np.count_nonzero(
+            y_data['coupling_coefs'][:], axis=2
+        )/n_targets, axis=0)
+
+    elif metric == 'r2' or metric == 'BIC':
+        x_plot = np.mean(x_data[metric][:], axis=0)
+        y_plot = np.mean(y_data[metric][:], axis=0)
+    else:
+        raise ValueError('Metric not available.')
+
+    ax.scatter(
+        x_plot,
+        y_plot,
+        alpha=0.5,
+        color=color,
+        edgecolor='w',
+        marker=marker
+    )
+
+    return ax
+
 
 def plot_coupling_grid(fits_path, axes=None):
     if axes is None:

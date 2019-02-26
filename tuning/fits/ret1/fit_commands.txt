@@ -115,6 +115,16 @@ UoI_Lasso (AIC)
 
 python3 ret1_strf_script.py --data_path=/home/psachdeva/data/ret1/data/20080516_R2.mat --random_path=/home/psachdeva/data/ret1/data/ran1.bin --results_path=fits/20080516_R2.h5 --results_group=UoI_AIC --method=UoI_Lasso --verbose --normalize --estimation_score=AIC --cell=7 --recording_idx=0  --window_length=0.40
 
+Cell 7, Recording 1
+-------------------
+
+Lasso
+
+python3 ret1_strf_script.py --data_path=/home/psachdeva/data/ret1/data/20080516_R2.mat --random_path=/home/psachdeva/data/ret1/data/ran1.bin --results_path=fits/20080516_R2.h5 --results_group=Lasso --method=Lasso --verbose --normalize --cv=5 --cell=7 --recording_idx=1 --window_length=0.40
+
+UoI_Lasso (AIC)
+
+python3 ret1_strf_script.py --data_path=/home/psachdeva/data/ret1/data/20080516_R2.mat --random_path=/home/psachdeva/data/ret1/data/ran1.bin --results_path=fits/20080516_R2.h5 --results_group=UoI_AIC --method=UoI_Lasso --verbose --normalize --estimation_score=AIC --cell=7 --recording_idx=1  --window_length=0.40
 
 
 
