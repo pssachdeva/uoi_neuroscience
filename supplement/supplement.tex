@@ -330,7 +330,24 @@ Our results are shown in Figure \ref{fig:cur_m1}. First, observe that the number
 	\label{fig:cur_m1}
 \end{figure}
 \subsection{Nonnegative Matrix Factorization (NMF)}
+The UoI$_{\text{NMF}}$ algorithm accept a set of ranks (or a single rank) as its main parameter, from which it calculates the optimal rank for the data it is provided. In order to compare UoI$_{\text{NMF}}$ to NMF, we provide UoI$_{\text{NMF}}$ with a set of ranks and perform its fit. Then, we calculate regular NMF using the number of components that UoI$_{\text{NMF}}$ extracted. 
 
 \subsubsection{Micro-electrocorticography in Rat Auditory Cortex}
-We considered the peak responses in H$\gamma$ band of the micro-electrocorticography recordings in rat auditory cortex. 
+We considered the peak responses in H$\gamma$ band of the micro-electrocorticography recordings in rat auditory cortex. There were three faulty electrodes whose responses were zeroed out before performing any fits. Furthermore, in this dataset, there are samples for which the responses are negative (where the evoked activity goes below baseline). Nonnegative matrix factorization requires positive entries in its data matrix. To account for this, we considered two approaches: (i) zeroing out the negative responses, which were largely small in magnitude or (ii) shifting each electrode's response such that the minimum sample is at least zero. 
+
+With these two approaches, we applied UoI$_{\text{NMF}}$ to the $4200\times 128$ data matrix $X$ with a rank of 20. In the former case, UoI$_{\text{NMF}}$ obtained fifteen bases. In the latter case, we obtained nine bases. All bases generated are depicted in Figure \ref{fig:nmf_ecog_bases} with the best frequency tuning grid shown for reference.
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[scale=0.197]{img/nmf/nmf_ecog_zero.pdf}
+	\ \ \ 
+	\includegraphics[scale=0.197]{img/nmf/uoi_nmf_ecog_zero.pdf}
+	\includegraphics[scale=0.8]{img/nmf/ecog_tuning_grid.png}
+	\includegraphics[scale=0.197]{img/nmf/nmf_ecog_min.pdf}
+	\ \ \ 
+	\includegraphics[scale=0.197]{img/nmf/uoi_nmf_ecog_min.pdf}
+	\caption{NMF Bases. \textbf{Top:} NMF and UoI$_{\text{NMF}}$ bases obtained after zeroing out the negative values. \textbf{Middle:} Best frequencies of electrode recordings for reference. \textbf{Bottom:} NMF and UoI$_{\text{NMF}}$ bases obtained after resetting minimum values to zero.}
+	\label{fig:nmf_ecog_bases}
+\end{figure}
+
 \end{document}
