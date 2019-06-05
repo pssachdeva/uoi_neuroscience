@@ -8,6 +8,7 @@ desired fitting procedure.
 """
 import argparse
 import h5py
+import numpy as np
 
 from neuropacks import NHP
 from sem import SEMSolver
@@ -29,6 +30,7 @@ def main(args):
         region=args.region,
         transform=args.transform
     )
+    Y = Y[:, np.argwhere(Y.sum(axis=0) > 0).ravel()]
 
     # create solver object
     solver = SEMSolver(Y=Y)
