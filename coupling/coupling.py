@@ -131,18 +131,18 @@ if __name__ == '__main__':
     parser.add_argument('--results_group')
     parser.add_argument('--method')
 
+    # All datasets
+    parser.add_argument('--transform', default='square_root')
+
     # NHP arguments
     parser.add_argument('--region', default='M1')
-    parser.add_argument('--bin_width', type=float, default=0.5)
-    parser.add_argument('--n_folds', type=int, default=10)
+    parser.add_argument('--bin_width', type=float, default=0.25)
 
     # ECOG arguments
     parser.add_argument('--band', default='HG')
 
-    # All datasets
-    parser.add_argument('--transform', default='square_root')
-
     # fitter object arguments
+    parser.add_argument('--n_folds', type=int, default=10)
     parser.add_argument('--normalize', action='store_true')
     parser.add_argument('--random_state', type=int, default=-1)
 
