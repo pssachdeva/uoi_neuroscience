@@ -132,7 +132,7 @@ if __name__ == '__main__':
     parser.add_argument('--method')
 
     # All datasets
-    parser.add_argument('--transform', default='square_root')
+    parser.add_argument('--transform', default=None)
 
     # NHP arguments
     parser.add_argument('--region', default='M1')
