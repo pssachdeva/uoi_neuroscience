@@ -12,12 +12,22 @@ def create_graph(fits_path, dataset, weighted=False, directed=False):
     fits = h5py.File(fits_path, 'r')
     coefs = np.median(fits[dataset]['coupling_coefs'][:], axis=0)
     n_neurons = coefs.shape[0]
+    A = np.zeros((n_neurons, n_neurons))
 
-    G = nx.graph()
-    G.add_edges_from(np.arange(n_neurons))
+    # create adjacency matrix
+    for neuron in range(n_neurons):
+        A[neuron] = np.insert(coefs[neuron], neuron, 0)
 
-    if weighted:
-        pass
+    if not weighted:
+        A = (A != 0).astype('int')
+
+    if directed:
+        G = nx.convert_matrix.from_numpy_matrix(A, create_using=nx.DiGraph())
+    else:
+        A = (A + A.T) / 2
+        G = nx.convert_matrix.from_numpy_matrix(A, create_using=nx.Graph())
+
+    return G
 
 
 def get_dataset(fits_path, metric, key):
