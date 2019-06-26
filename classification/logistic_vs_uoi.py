@@ -62,7 +62,6 @@ def main(args):
 
     # iterate over stratified folds
     for fold_idx, (train_idx, test_idx) in enumerate(skfold.split(X, y)):
-        continue
         print('Fold %s' % fold_idx)
         train_folds.append(train_idx)
         test_folds.append(test_folds)
