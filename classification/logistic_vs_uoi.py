@@ -64,7 +64,7 @@ def main(args):
     for fold_idx, (train_idx, test_idx) in enumerate(skfold.split(X, y)):
         print('Fold %s' % fold_idx)
         train_folds.append(train_idx)
-        test_folds.append(test_folds)
+        test_folds.append(test_idx)
 
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]

@@ -1,9 +1,8 @@
 """
-Performs a cross-validated coupling fit on spiking data from the PVC11 CRCNS
-database. This dataset consists of primary visual cortex spiking responses to
-gratings.
+Performs a cross-validated coupling fit on various neuroscience datasets, using
+sci-kit learn.
 
-This script performs and stores coupling models on this dataset using a
+This script calculates and stores coupling models on this dataset using a
 desired fitting procedure.
 """
 import argparse
