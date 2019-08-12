@@ -79,7 +79,7 @@ def main(args):
     # clear out empty units
     Y = Y[:, np.argwhere(Y.sum(axis=0) != 0).ravel()]
     n_targets = Y.shape[1]
-    targets = np.arange(1)
+    targets = np.arange(n_targets)
 
     # create folds
     skfolds = StratifiedKFold(
