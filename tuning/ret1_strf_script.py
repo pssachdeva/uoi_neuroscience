@@ -26,7 +26,8 @@ def main(args):
             verbose=args.verbose,
 
             # general options
-            normalize=args.normalize,
+            normalize=args.standardize,
+            standardize=args.standardize,
 
             # Lasso specific
             cv=args.cv,
@@ -73,15 +74,15 @@ if __name__ == '__main__':
     parser.add_argument('--window_length', type=float, default=0.5)
     parser.add_argument('--verbose', action='store_true')
     # fitter object arguments
-    parser.add_argument('--normalize', action='store_true')
+    parser.add_argument('--standardize', action='store_true')
     parser.add_argument('--cv', type=int, default=10)
     parser.add_argument('--max_iter', type=int, default=5000)
     # UoI Lasso arguments
-    parser.add_argument('--n_boots_sel', type=int, default=50)
-    parser.add_argument('--n_boots_est', type=int, default=50)
+    parser.add_argument('--n_boots_sel', type=int, default=30)
+    parser.add_argument('--n_boots_est', type=int, default=30)
     parser.add_argument('--selection_frac', type=float, default=0.8)
     parser.add_argument('--estimation_frac', type=float, default=0.8)
-    parser.add_argument('--n_lambdas', type=int, default=48)
+    parser.add_argument('--n_lambdas', type=int, default=50)
     parser.add_argument('--stability_selection', type=float, default=1.)
     parser.add_argument('--estimation_score', default='r2')
 

@@ -45,7 +45,6 @@ def plot_metric(
     return ax
 
 
-
 def plot_tuning_grid(fits_path, base, axes=None):
     if axes is None:
         fig, axes = plt.subplots(4, 3, figsize=(9, 12))
@@ -105,3 +104,47 @@ def plot_tuning_grid(fits_path, base, axes=None):
         )
 
     return axes
+
+
+def plot_retina_strf(filepath, cell_recording, fax=None, vmin=-1e-6, vmax=1e-6):
+    """Plots a comparison of STRFs obtained on RET1 dataset using Lasso and
+    UoI Lasso."""
+    # create axes
+    if fax is None:
+        fig, axes = plt.subplots(1, 2, figsize=(3, 4))
+    else:
+        fig, axes = fax
+
+    results = h5py.File(filepath, 'r')
+
+    lasso_strf = results[cell_recording]['Lasso/strf'][:]
+    uoi_strf = results[cell_recording]['UoI_AIC/strf'][:]
+
+    axes[0].imshow(
+        lasso_strf.T,
+        cmap=plt.get_cmap('RdGy'),
+        vmin=vmin, vmax=vmax)
+    axes[0].set_aspect('auto')
+    axes[0].tick_params(labelsize=10)
+    axes[0].set_yticks(np.arange(lasso_strf.shape[0]))
+
+    axes[1].imshow(
+        uoi_strf.T,
+        cmap=plt.get_cmap('RdGy'),
+        vmin=vmin, vmax=vmax)
+    axes[1].set_aspect('auto')
+    axes[1].tick_params(labelsize=10)
+    axes[1].set_yticks(np.arange(uoi_strf.shape[0]))
+
+    axes[0].set_xticks([0, 24])
+    axes[1].set_xticks([0, 24])
+    axes[0].set_ylabel(r'\textbf{Position}', fontsize=15)
+    axes[1].set_xlabel(r'\textbf{Time (s)}', fontsize=15)
+
+    for ax in axes:
+        ax.set_ylim([150, 250])
+
+    axes[0].set_title(r'\textbf{Lasso}', fontsize=15)
+    axes[1].set_title(r'\textbf{UoI}$_{\textbf{Lasso}}$', fontsize=15)
+
+    return fig, axes
