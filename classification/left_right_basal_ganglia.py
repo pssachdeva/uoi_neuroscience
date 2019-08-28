@@ -1,3 +1,7 @@
+"""
+Performs a cross-validated logistic regression on consonant-vowel syllables
+using human ECoG data from the Chang lab.
+"""
 import argparse
 import h5py
 import numpy as np
