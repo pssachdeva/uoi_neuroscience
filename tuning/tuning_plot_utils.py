@@ -1,22 +1,29 @@
+"""Utility functions for plotting tuning results."""
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 def plot_metric(
-    fits_path, metric, x='Lasso', y='UoI_Lasso_R2', ax=None, color='k',
+    results_path, metric, x='Lasso', y='UoI_Lasso_R2', fax=None, color='k',
     marker='o'
 ):
-    if ax is None:
-        fig, ax = plt.subplots(1, figsize=(2, 2))
+    """Compares a metric between two fitting procedures on a specified set of
+    axes."""
+    # create plot
+    if fax is None:
+        fig, ax = plt.subplots(1, 1, figsize=(12, 12))
+    else:
+        fig, ax = fax
 
-    fits = h5py.File(fits_path, 'r')
-    x_data = fits[x]
-    y_data = fits[y]
+    results = h5py.File(results_path, 'r')
+    x_data = results[x]
+    y_data = results[y]
 
-    n_targets = x_data['tuning_coefs'].shape[-1] + 1
-
+    # plot the metric
     if metric == 'selection_ratio':
+        n_targets = x_data['tuning_coefs'].shape[-1] + 1
+
         x_plot = np.mean((
             np.count_nonzero(x_data['tuning_coefs'][:], axis=2) + 1)/n_targets,
             axis=0
@@ -34,20 +41,24 @@ def plot_metric(
         raise ValueError('Metric not available.')
 
     ax.scatter(
-        x_plot,
-        y_plot,
+        x_plot, y_plot,
         alpha=0.5,
         color=color,
         edgecolor='w',
-        marker=marker
-    )
+        marker=marker)
 
-    return ax
+    results.close()
+
+    return fig, ax
 
 
-def plot_tuning_grid(fits_path, base, axes=None):
-    if axes is None:
+def plot_tuning_grid(fits_path, base, fax=None):
+    """Plots the selection ratios and scores from the tuning fits."""
+    # create plot
+    if fax is None:
         fig, axes = plt.subplots(4, 3, figsize=(9, 12))
+    else:
+        fig, axes = fax
 
     fits = h5py.File(fits_path, 'r')
 
@@ -103,23 +114,27 @@ def plot_tuning_grid(fits_path, base, axes=None):
             edgecolor='w'
         )
 
-    return axes
+    return fig, axes
 
 
-def plot_retina_strf(filepath, cell_recording, fax=None, vmin=-1e-6, vmax=1e-6):
+def plot_retina_strf(
+    results_path, cell_recording, fax=None, vmin=-1e-6, vmax=1e-6
+):
     """Plots a comparison of STRFs obtained on RET1 dataset using Lasso and
-    UoI Lasso."""
+    UoI Lasso. Does not include colorbar."""
     # create axes
     if fax is None:
         fig, axes = plt.subplots(1, 2, figsize=(3, 4))
     else:
         fig, axes = fax
 
-    results = h5py.File(filepath, 'r')
-
+    # extract fits
+    results = h5py.File(results_path, 'r')
     lasso_strf = results[cell_recording]['Lasso/strf'][:]
     uoi_strf = results[cell_recording]['UoI_AIC/strf'][:]
+    results.close()
 
+    # plot lasso STRF
     axes[0].imshow(
         lasso_strf.T,
         cmap=plt.get_cmap('RdGy'),
@@ -128,6 +143,7 @@ def plot_retina_strf(filepath, cell_recording, fax=None, vmin=-1e-6, vmax=1e-6):
     axes[0].tick_params(labelsize=10)
     axes[0].set_yticks(np.arange(lasso_strf.shape[0]))
 
+    # plot UoI STRF
     axes[1].imshow(
         uoi_strf.T,
         cmap=plt.get_cmap('RdGy'),
@@ -135,16 +151,5 @@ def plot_retina_strf(filepath, cell_recording, fax=None, vmin=-1e-6, vmax=1e-6):
     axes[1].set_aspect('auto')
     axes[1].tick_params(labelsize=10)
     axes[1].set_yticks(np.arange(uoi_strf.shape[0]))
-
-    axes[0].set_xticks([0, 24])
-    axes[1].set_xticks([0, 24])
-    axes[0].set_ylabel(r'\textbf{Position}', fontsize=15)
-    axes[1].set_xlabel(r'\textbf{Time (s)}', fontsize=15)
-
-    for ax in axes:
-        ax.set_ylim([150, 250])
-
-    axes[0].set_title(r'\textbf{Lasso}', fontsize=15)
-    axes[1].set_title(r'\textbf{UoI}$_{\textbf{Lasso}}$', fontsize=15)
 
     return fig, axes
