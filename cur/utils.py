@@ -1,6 +1,7 @@
 import numpy as np
 
 from neuropacks import NHP
+from pykalman import KalmanFilter
 from pyuoi.decomposition import UoI_CUR, CUR
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import KFold
