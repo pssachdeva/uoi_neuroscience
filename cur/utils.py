@@ -113,47 +113,81 @@ def decoding_comparison_nhp(data_path, bin_width=0.25, region='M1', n_folds=5):
            (n_columns_uoi, decoding_x_uoi, decoding_y_uoi)
 
 
+def apply_linear_decoder(x, y, Y, train_frac=0.8):
+    """Trains a linear decoder on incoming neural data, and applies it to test
+    data."""
+    n_total_samples = Y.shape[0]
+    n_train_samples = int(n_total_samples * train_frac)
+
+    X = np.vstack((x, y)).T
+    X_train = X[:n_train_samples]
+    X_test = X[n_train_samples:-1]
+
+    Z_train = Y[:n_train_samples]
+    Z_test = Y[n_train_samples:-1]
+
+    ols = LinearRegression(fit_intercept=True)
+    ols.fit(Z_train, X_train)
+    X_test_hat = ols.predict(Z_test)
+
+    return X_test, X_test_hat
+
+
 def apply_kalman_filter(x, y, Y, dt=0.25, train_frac=0.8):
     """Trains a Kalman Filter to incoming neural data, and applies it to test
     data."""
     n_total_samples = Y.shape[0]
     n_train_samples = int(n_total_samples * train_frac)
 
-    vx = np.ediff1d(x) / dt
-    vy = np.ediff1d(y) / dt
+    # split up x,y coordinates into train and test sets
+    xy = np.vstack((x, y)).T
 
-    X = np.vstack((x[:-1], y[:-1], vx, vy)).T
+    # extract velocity
+    v_xy = np.diff(xy, axis=0) / dt
 
+    # kinematics matrices
+    X = np.hstack((xy[:-1], v_xy))
     X_train = X[:n_train_samples]
     X_test = X[n_train_samples:]
+
+    # split up neural activity into train and test sets
     Z_train = Y[:n_train_samples]
-    Z_test = Y[n_train_samples:]
-
-    # center input
-    X_train -= X_train.mean(axis=0, keepdims=True)
-    X_test -= X_train.mean(axis=0, keepdims=True)
-    Z_train -= Z_train.mean(axis=0, keepdims=True)
-    Z_test -= Z_test.mean(axis=0, keepdims=True)
-
-    # standardize input
-    Z_train /= Z_train.std(axis=0, keepdims=True)
-    Z_test /= Z_train.std(axis=0, keepdims=True)
+    Z_test = Y[n_train_samples:-1]
 
     # fill in the kinematics matrix
     A = np.identity(4)
+    b = np.zeros(4)
     # ensure velocity explains positions
     A[0, 2] = dt
     A[1, 3] = dt
-    # fit velocity
+    # fit velocity to velocity coefficients
     ols = LinearRegression(fit_intercept=False)
     ols.fit(X_train[:-1, 2:4], X_train[1:, 2:4])
     A[2:4, 2:4] = ols.coef_
+    # covariance matrix using residuals
+    Q = np.zeros(A.shape)
+    residuals = X_train[1:] - np.dot(X_train[:-1], A)
+    Q_full = np.dot(residuals.T, residuals) / residuals.shape[0]
+    Q[2:4, 2:4] = Q_full[2:4, 2:4]
 
+    # kinematics to neural activity matrix
+    ols = LinearRegression(fit_intercept=True)
+    ols.fit(X_train, Z_train)
+    C = ols.coef_
+    d = ols.intercept_
+    # covariance matrix using residuals
+    residuals = Z_train - ols.predict(X_train)
+    R = np.dot(residuals.T, residuals) / residuals.shape[0]
+
+    # create Kalman Filter
     kf = KalmanFilter(
         transition_matrices=A,
         observation_matrices=C,
-        observation_offsets=d,
-        transition_offsets=np.zeros(4),
-        transition_covariance=W,
-        observation_covariance=Q
-    )
+        transition_covariance=Q,
+        observation_covariance=R,
+        transition_offsets=b,
+        observation_offsets=d)
+
+    X_test_hat, _ = kf.filter(Z_test)
+
+    return X_test, X_test_hat
