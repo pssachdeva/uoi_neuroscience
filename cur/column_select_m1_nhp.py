@@ -20,7 +20,6 @@ def main(args):
     Y = Y[:, nonzero_idx]
     n_samples, n_features = Y.shape
 
-
     # create k array
     max_ks = np.arange(args.min_max_k, args.max_max_k, args.max_k_spacing)
     n_max_ks = max_ks.size
@@ -50,7 +49,6 @@ def main(args):
             uoi_css.fit(Y, ks=int(max_k))
             uoi_columns = uoi_css.column_indices_
             n_columns = uoi_columns.size
-            print(n_columns)
             # perform ordinary CSS
             css_fit = CUR(max_k=max_k)
             css_fit.fit(Y)

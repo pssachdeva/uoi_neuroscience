@@ -4,6 +4,7 @@ from neuropacks import NHP
 from pykalman import KalmanFilter
 from pyuoi.decomposition import UoI_CUR, CUR
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 from sklearn.model_selection import KFold
 
 
@@ -113,7 +114,7 @@ def decoding_comparison_nhp(data_path, bin_width=0.25, region='M1', n_folds=5):
            (n_columns_uoi, decoding_x_uoi, decoding_y_uoi)
 
 
-def apply_linear_decoder(x, y, Y, train_frac=0.8):
+def apply_linear_decoder(x, y, Y, train_frac=0.8, score=False):
     """Trains a linear decoder on incoming neural data, and applies it to test
     data."""
     n_total_samples = Y.shape[0]
@@ -130,10 +131,22 @@ def apply_linear_decoder(x, y, Y, train_frac=0.8):
     ols.fit(Z_train, X_train)
     X_test_hat = ols.predict(Z_test)
 
-    return X_test, X_test_hat
+    if score:
+        n_outputs = X_test.shape[1]
+        r2s = np.zeros(n_outputs)
+        corrs = np.zeros(n_outputs)
+        # coefficient of determination
+        for idx in range(n_outputs):
+            r2s[idx] = r2_score(X_test[:, idx], X_test_hat[:, idx])
+        # correlation
+        for idx in range(n_outputs):
+            corrs[idx] = np.corrcoef(X_test[:, idx], X_test_hat[:, idx])[0, 1]
+        return X_test, X_test_hat, r2s, corrs
+    else:
+        return X_test, X_test_hat
 
 
-def apply_kalman_filter(x, y, Y, dt=0.25, train_frac=0.8):
+def apply_kalman_filter(x, y, Y, dt=0.25, train_frac=0.8, score=False):
     """Trains a Kalman Filter to incoming neural data, and applies it to test
     data."""
     n_total_samples = Y.shape[0]
@@ -190,4 +203,16 @@ def apply_kalman_filter(x, y, Y, dt=0.25, train_frac=0.8):
 
     X_test_hat, _ = kf.filter(Z_test)
 
-    return X_test, X_test_hat
+    if score:
+        n_outputs = X_test.shape[1]
+        r2s = np.zeros(n_outputs)
+        corrs = np.zeros(n_outputs)
+        # coefficient of determination
+        for idx in range(n_outputs):
+            r2s[idx] = r2_score(X_test[:, idx], X_test_hat[:, idx])
+        # correlation
+        for idx in range(n_outputs):
+            corrs[idx] = np.corrcoef(X_test[:, idx], X_test_hat[:, idx])[0, 1]
+        return X_test, X_test_hat, r2s, corrs
+    else:
+        return X_test, X_test_hat
