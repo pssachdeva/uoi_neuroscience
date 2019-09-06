@@ -13,6 +13,7 @@ import numpy as np
 from cvglmnet import cvglmnet
 from cvglmnetCoef import cvglmnetCoef
 from neuropacks import ECOG, NHP, PVC11
+from pyuoi.linear_model import UoI_Poisson
 from sklearn.model_selection import StratifiedKFold
 
 
@@ -35,9 +36,10 @@ def main(args):
         random_state = args.random_state
 
     n_folds = args.n_folds
-    normalize = args.normalize
+    standardize = args.standardize
     verbose = args.verbose
 
+    # extract dataset
     if args.dataset == 'ECOG':
         # create data extraction object
         ecog = ECOG(data_path=args.data_path)
@@ -81,12 +83,27 @@ def main(args):
     n_targets = Y.shape[1]
     targets = np.arange(n_targets)
 
+    # create fitter
+    if args.fitter == 'UoI_Poisson':
+        fitter = UoI_Poisson(
+            n_lambdas=50,
+            n_boots_sel=30,
+            n_boots_est=30,
+            selection_frac=0.8,
+            estimation_frac=0.8,
+            stability_selection=0.9,
+            estimation_score='log',
+            solver='lbfgs',
+            standardize=True,
+            fit_intercept=True,
+            max_iter=10000,
+            warm_start=False)
+
     # create folds
     skfolds = StratifiedKFold(
         n_splits=args.n_folds,
         shuffle=True,
-        random_state=random_state
-    )
+        random_state=random_state)
     train_folds = {}
     test_folds = {}
 
@@ -120,11 +137,17 @@ def main(args):
             y_test = Y_test[:, target]
 
             # perform fit
-            fit = cvglmnet(x=X_train, y=y_train, family='poisson',
-                           nfolds=n_folds, standardize=normalize)
-            coefs = cvglmnetCoef(fit, s='lambda_min').ravel()
-            intercept = coefs[0]
-            coef = coefs[1:]
+            if args.fitter == 'glmnet':
+                fit = cvglmnet(x=X_train, y=y_train, family='poisson',
+                               nfolds=n_folds, standardize=standardize)
+                coefs = cvglmnetCoef(fit, s='lambda_min').ravel()
+                intercept = coefs[0]
+                coef = coefs[1:]
+            else:
+                fitter.fit(X_train, y_train)
+                intercept = fitter.intercept_
+                coef = fitter.coef_
+
             intercepts[fold_idx, target_idx] = intercept
             coupling_coefs[fold_idx, target_idx] = coef
 
@@ -160,6 +183,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_path')
     parser.add_argument('--results_path')
     parser.add_argument('--results_group')
+    parser.add_argument('--fitter')
 
     # All datasets
     parser.add_argument('--transform', default=None)
@@ -173,7 +197,7 @@ if __name__ == '__main__':
 
     # fitter object arguments
     parser.add_argument('--n_folds', type=int, default=10)
-    parser.add_argument('--normalize', action='store_true')
+    parser.add_argument('--standardize', action='store_true')
     parser.add_argument('--random_state', type=int, default=-1)
 
     parser.add_argument('--verbose', action='store_true')

@@ -3,9 +3,78 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
-
+from pyuoi.linear_model import UoI_Lasso, UoI_Poisson
 from scipy.stats import hypergeom
 from scipy.stats import wilcoxon
+from sklearn.linear_model import LinearRegression, LassoCV
+
+
+def get_fitter(method, **kwargs):
+    """Returns an object to perform a regression fit.
+
+    Parameters
+    ----------
+    method : string
+        The method to use when performing the fit. Can be one of:
+            'OLS' (Ordinary Least Squares)
+            'Lasso' (Cross-validated Lasso)
+            'UoI_Lasso' (UoI Lasso).
+
+    kwargs :
+        Additional arguments to pass to each constructor.
+
+    Returns
+    -------
+    fitter : object
+        The object that can perform a regression fit using the fit()
+        function.
+    """
+    # create fitting object
+    if method == 'OLS':
+        fitter = LinearRegression(
+            fit_intercept=kwargs.get('fit_intercept', True),
+            normalize=kwargs.get('normalize', True)
+        )
+
+    elif method == 'Lasso':
+        fitter = LassoCV(
+            normalize=kwargs.get('normalize', True),
+            cv=kwargs.get('cv', 10),
+            max_iter=kwargs.get('max_iter', 5000)
+        )
+
+    elif method == 'UoI_Lasso':
+        fitter = UoI_Lasso(
+            n_boots_sel=kwargs.get('n_boots_sel', 30),
+            n_boots_est=kwargs.get('n_boots_est', 30),
+            selection_frac=kwargs.get('selection_frac', 0.8),
+            estimation_frac=kwargs.get('estimation_frac', 0.8),
+            estimation_score=kwargs.get('estimation_score', 'r2'),
+            stability_selection=kwargs.get('stability_selection', 1.0),
+            standardize=kwargs.get('standardize', True),
+            fit_intercept=True,
+            max_iter=kwargs.get('max_iter', 5000)
+        )
+
+    elif method == 'UoI_Poisson':
+        fitter = UoI_Poisson(
+            n_lambdas=kwargs.get('n_lambdas', 50),
+            n_boots_sel=kwargs.get('n_boots_sel', 30),
+            n_boots_est=kwargs.get('n_boots_est', 30),
+            selection_frac=kwargs.get('selection_frac', 0.8),
+            estimation_frac=kwargs.get('estimation_frac', 0.8),
+            stability_selection=kwargs.get('stability_selection', 1.0),
+            estimation_score=kwargs.get('estimation_score', 'log'),
+            solver=kwargs.get('solver', 'lbfgs'),
+            standardize=kwargs.get('standardize', True),
+            fit_intercept=True,
+            max_iter=kwargs.get('max_iter', 10000),
+            warm_start=False
+        )
+    else:
+        raise ValueError("Incorrect method specified.")
+
+    return fitter
 
 
 def create_graph(fits_path, dataset, weighted=False, directed=False):
