@@ -7,6 +7,12 @@ from pyuoi.decomposition import UoI_CUR, CUR
 
 
 def main(args):
+    left_idx = args.left_idx
+    if args.right_idx == 0:
+        right_idx = None
+    else:
+        right_idx = args.right_idx
+
     dt = args.bin_width
 
     nhp = NHP(data_path=args.data_path)
@@ -17,7 +23,7 @@ def main(args):
         region=args.region,
         transform='square_root')
     nonzero_idx = np.argwhere(Y.sum(axis=0) > 0).ravel()
-    Y = Y[:, nonzero_idx]
+    Y = Y[left_idx:right_idx, nonzero_idx]
     n_samples, n_features = Y.shape
 
     # create k array
@@ -45,7 +51,8 @@ def main(args):
             uoi_css = UoI_CUR(
                 n_boots=args.n_boots,
                 max_k=max_k,
-                boots_frac=args.boots_frac)
+                boots_frac=args.boots_frac,
+                stability_selection=args.stability_selection)
             uoi_css.fit(Y, ks=int(max_k))
             uoi_columns = uoi_css.column_indices_
             n_columns = uoi_columns.size
@@ -78,13 +85,16 @@ if __name__ == '__main__':
     parser.add_argument('--data_path')
     parser.add_argument('--results_path')
     parser.add_argument('--bin_width', type=float, default=0.25)
+    parser.add_argument('--left_idx', type=int, default=0)
+    parser.add_argument('--right_idx', type=int, default=0)
     parser.add_argument('--reps', type=int, default=20)
     parser.add_argument('--region', default='M1')
     parser.add_argument('--min_max_k', type=int, default=2)
     parser.add_argument('--max_max_k', type=int, default=100)
     parser.add_argument('--max_k_spacing', type=int, default=2)
     parser.add_argument('--n_boots', type=int, default=20)
-    parser.add_argument('--boots_frac', type=float, default=0.8)
+    parser.add_argument('--boots_frac', type=float, default=0.9)
+    parser.add_argument('--stability_selection', type=float, default=0.9)
     parser.add_argument('--verbose', action='store_true')
     args = parser.parse_args()
 
