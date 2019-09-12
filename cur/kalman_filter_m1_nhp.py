@@ -44,11 +44,11 @@ def main(args):
     css_linear = np.zeros((reps, n_max_ks, 2))
 
     # iterate over repetitions
-    for rep in range(1):
+    for rep in range(reps):
         if args.verbose:
             print('Repetition ', str(rep))
         # iterate over ranks
-        for k_idx, max_k in enumerate(max_ks[:5]):
+        for k_idx, max_k in enumerate(max_ks):
             uoi_c = results['uoi/columns/%s/%s' % (rep, max_k)][:]
             _, _, _, corrs = apply_kalman_filter(
                 x, y, Y[:, uoi_c], score=True, train_frac=args.train_frac

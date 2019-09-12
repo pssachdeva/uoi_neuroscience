@@ -30,7 +30,7 @@ subprocess.call([
     '--min_max_k=30',
     '--max_max_k=136',
     '--max_k_spacing=2',
-    '--train_frac=0.8'
+    '--train_frac=0.8',
     '--verbose'
 ])
 
@@ -64,6 +64,6 @@ subprocess.call([
     '--min_max_k=30',
     '--max_max_k=146',
     '--max_k_spacing=2',
-    '--train_frac=0.8'
+    '--train_frac=0.8',
     '--verbose'
 ])
