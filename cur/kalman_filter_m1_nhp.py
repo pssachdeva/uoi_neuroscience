@@ -75,10 +75,11 @@ def main(args):
             css_linear[rep, k_idx, 0] = corrs[0]
             css_linear[rep, k_idx, 1] = corrs[1]
 
-        results['uoi/columns/%s' % rep]['kalman_scores'] = uoi_kalman
-        results['css/columns/%s' % rep]['kalman_scores'] = css_kalman
-        results['uoi/columns/%s' % rep]['linear_scores'] = uoi_linear
-        results['css/columns/%s' % rep]['linear_scores'] = css_linear
+    results['base_scores'] = base_corrs
+    results['uoi/scores/kalman_scores'] = uoi_kalman
+    results['css/scores/kalman_scores'] = css_kalman
+    results['uoi/scores/linear_scores'] = uoi_linear
+    results['css/scores/linear_scores'] = css_linear
 
     results.close()
 
