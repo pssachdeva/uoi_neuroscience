@@ -68,6 +68,7 @@ for cell in cells:
     ])
 
 print('20080628_R4, Recording 2')
+# stopped at cell 2
 cells = [0, 2, 3, 13, 14]
 for cell in cells:
     subprocess.call([
