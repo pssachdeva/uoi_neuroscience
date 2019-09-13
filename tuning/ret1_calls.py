@@ -1,7 +1,7 @@
 import subprocess
 
 
-# 20080516_R1, Recording 0
+print('20080516_R1, Recording 0')
 cells = [0, 2, 3, 4, 5]
 for cell in cells:
     subprocess.call([
@@ -34,7 +34,7 @@ for cell in cells:
         '--window_length=0.40'
     ])
 
-# 20080516_R1, Recording 2
+print('20080516_R1, Recording 2')
 cells = [0, 2]
 for cell in cells:
     subprocess.call([
@@ -67,7 +67,7 @@ for cell in cells:
         '--window_length=0.40'
     ])
 
-# 20080516_R1, Recording 2
+print('20080628_R4, Recording 2')
 cells = [0, 2, 3, 13, 14]
 for cell in cells:
     subprocess.call([
@@ -80,7 +80,7 @@ for cell in cells:
         '--verbose',
         '--standardize',
         '--cv=5',
-        '--recording_idx=2',
+        '--recording_idx=0',
         '--cell=%s' % cell,
         '--window_length=0.40'
     ])
@@ -95,7 +95,7 @@ for cell in cells:
         '--verbose',
         '--standardize',
         '--estimation_score=AIC',
-        '--recording_idx=2',
+        '--recording_idx=0',
         '--cell=%s' % cell,
         '--window_length=0.40'
     ])
