@@ -100,6 +100,8 @@ def main(args):
             estimation_frac=0.8,
             n_C=args.n_Cs,
             multi_class='multinomial',
+            estimation_score=args.estimation_score,
+            estimation_target=args.estimation_target,
             shared_support=args.shared_support,
             random_state=random_state)
         uoi.fit(X_train_center, y_train)
@@ -148,6 +150,8 @@ if __name__ == '__main__':
     parser.add_argument('--n_Cs', type=int, default=50)
     parser.add_argument('--cv', type=int, default=5)
     parser.add_argument('--shared_support', action='store_true')
+    parser.add_argument('--estimation_score', default='acc')
+    parser.add_argument('--estimation_target', default='test')
 
     args = parser.parse_args()
 
