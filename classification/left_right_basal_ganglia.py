@@ -25,7 +25,8 @@ def main(args):
     results_path = args.results_path
     results_group = args.results_group
 
-    window_length = args.window_length
+    window_left = args.window_left
+    window_right = args.window_right
     n_folds = args.n_folds
     with_std = args.with_std
     verbose = args.verbose
@@ -59,13 +60,13 @@ def main(args):
 
     for t_idx, trial_idx in enumerate(valid_trials):
         trial = bg.trials[trial_idx]
-        t_center_in = trial.t_center_out
+        t_center_out = trial.t_center_out
 
         for u_idx, unit_idx in enumerate(good_units):
             spike_times = trial.spike_times[unit_idx]
             spike_count = np.count_nonzero(
-                (spike_times >= t_center_in)
-                & (spike_times <= t_center_in + window_length)
+                (spike_times - window_left >= t_center_out)
+                & (spike_times <= t_center_out + window_right)
             )
             X[t_idx, u_idx] = spike_count
 
@@ -145,7 +146,8 @@ if __name__ == '__main__':
     parser.add_argument('--data_path')
     parser.add_argument('--results_path')
     parser.add_argument('--results_group')
-    parser.add_argument('--window_length', type=float, default=0.1)
+    parser.add_argument('--window_left', type=float, default=0.1)
+    parser.add_argument('--window_right', type=float, default=0.)
     parser.add_argument('--n_folds', type=int, default=5)
     parser.add_argument('--random_state', type=int, default=-1)
     parser.add_argument('--with_std', action='store_true')

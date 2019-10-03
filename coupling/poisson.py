@@ -1,6 +1,6 @@
 """
 Performs a cross-validated coupling fit on various neuroscience datasets,
-using glmnet from R.
+using a Poisson fitter. Can use either glmnet or UoI.
 
 This script performs and stores coupling models on this dataset using a
 desired fitting procedure.
@@ -18,14 +18,31 @@ from sklearn.model_selection import StratifiedKFold
 
 
 def log_likelihood(y_true, y_pred):
+    """Calculate the log-likelihood for a Poisson model."""
     return np.sum(y_true * np.log(y_pred) - y_pred)
 
 
 def deviance(y_true, y_pred):
+    """Calculate the deviance for a Poisson model."""
     ll_est = log_likelihood(y_true, y_pred)
     y_true_nz = y_true[y_true != 0]
     ll_true = log_likelihood(y_true_nz, y_true_nz)
     return ll_true - ll_est
+
+
+def AIC(y_true, y_pred, n_features):
+    """Calculates the AIC for a Poisson model."""
+    ll = log_likelihood(y_true, y_pred)
+    AIC = 2 * n_features - 2 * ll
+    return AIC
+
+
+def BIC(y_true, y_pred, n_features):
+    """Calculates the BIC for a Poisson model."""
+    ll = log_likelihood(y_true, y_pred)
+    n_samples = y_true.size
+    BIC = np.log(n_samples) * n_features - 2 * ll
+    return BIC
 
 
 def main(args):
@@ -49,8 +66,7 @@ def main(args):
             bounds=(40, 60),
             band=args.band,
             electrodes=None,
-            transform=None
-        )
+            transform=None)
         class_labels = ecog.get_design_matrix(form='id')
 
     elif args.dataset == 'NHP':
@@ -61,8 +77,7 @@ def main(args):
         Y = nhp.get_response_matrix(
             bin_width=args.bin_width,
             region=args.region,
-            transform=args.transform
-        )
+            transform=args.transform)
         class_labels = None
 
     elif args.dataset == 'PVC11':
@@ -70,9 +85,7 @@ def main(args):
         pvc = PVC11(data_path=args.data_path)
 
         # get response matrix
-        Y = pvc.get_response_matrix(
-            transform=args.transform
-        )
+        Y = pvc.get_response_matrix(transform=args.transform)
         class_labels = pvc.get_design_matrix(form='label')
 
     else:
@@ -86,15 +99,15 @@ def main(args):
     # create fitter
     if args.fitter == 'UoI_Poisson':
         fitter = UoI_Poisson(
-            n_lambdas=50,
-            n_boots_sel=30,
-            n_boots_est=30,
-            selection_frac=0.8,
-            estimation_frac=0.8,
-            stability_selection=0.9,
-            estimation_score='log',
+            n_lambdas=args.n_lambdas,
+            n_boots_sel=args.n_boots_est,
+            n_boots_est=args.n_boots_sel,
+            selection_frac=args.estimation_frac,
+            estimation_frac=args.selection_frac,
+            stability_selection=args.stability_selection,
+            estimation_score=args.estimation_score,
             solver='lbfgs',
-            standardize=True,
+            standardize=standardize,
             fit_intercept=True,
             max_iter=10000,
             warm_start=False)
@@ -110,8 +123,12 @@ def main(args):
     # create results dict
     intercepts = np.zeros((n_folds, n_targets))
     coupling_coefs = np.zeros((n_folds, n_targets, n_targets - 1))
-    lls = np.zeros((n_folds, n_targets))
-    deviances = np.zeros((n_folds, n_targets))
+    train_lls = np.zeros((n_folds, n_targets))
+    test_lls = np.zeros((n_folds, n_targets))
+    deviances_train = np.zeros((n_folds, n_targets))
+    deviances_test = np.zeros((n_folds, n_targets))
+    AICs = np.zeros((n_folds, n_targets))
+    BICs = np.zeros((n_folds, n_targets))
 
     # outer loop: create and iterate over cross-validation folds
     for fold_idx, (train_idx, test_idx) in enumerate(
@@ -126,6 +143,7 @@ def main(args):
         Y_train = Y[train_idx, :]
         Y_test = Y[test_idx, :]
 
+        # inner loop: iterate over neuron fits
         for target_idx, target in enumerate(targets):
             if verbose:
                 print('Target ', target)
@@ -149,20 +167,32 @@ def main(args):
                 coef = fitter.coef_
 
             intercepts[fold_idx, target_idx] = intercept
-            coupling_coefs[fold_idx, target_idx] = coef
+            coupling_coefs[fold_idx, target_idx] = np.copy(coef)
 
             # test design and response matrices
-            y_pred = np.exp(intercept + np.dot(X_test, coef))
-            lls[fold_idx, target_idx] = log_likelihood(y_test, y_pred)
-            deviances[fold_idx, target_idx] = log_likelihood(y_test, y_pred)
+            y_pred_train = np.exp(intercept + np.dot(X_train, coef))
+            y_pred_test = np.exp(intercept + np.dot(X_test, coef))
+
+            # metrics
+            train_lls[fold_idx, target_idx] = log_likelihood(y_train, y_pred_train)
+            test_lls[fold_idx, target_idx] = log_likelihood(y_test, y_pred_test)
+            deviances_train[fold_idx, target_idx] = deviance(y_train, y_pred_train)
+            deviances_test[fold_idx, target_idx] = deviance(y_test, y_pred_test)
+            n_features = 1 + np.count_nonzero(coef)
+            AICs[fold_idx, target_idx] = AIC(y_train, y_pred_train, n_features)
+            BICs[fold_idx, target_idx] = BIC(y_train, y_pred_train, n_features)
 
     results_file = h5py.File(args.results_path, 'a')
     group = results_file.create_group(args.results_group)
     group['Y'] = Y
-    group['coupling_coefs'] = coupling_coefs
     group['intercepts'] = intercepts
-    group['lls'] = lls
-    group['deviances'] = deviances
+    group['coupling_coefs'] = coupling_coefs
+    group['train_lls'] = train_lls
+    group['test_lls'] = test_lls
+    group['deviances_train'] = deviances_train
+    group['deviances_test'] = deviances_test
+    group['AICs'] = AICs
+    group['BICs'] = BICs
 
     train_folds_group = group.create_group('train_folds')
     test_folds_group = group.create_group('test_folds')
@@ -199,6 +229,15 @@ if __name__ == '__main__':
     parser.add_argument('--n_folds', type=int, default=10)
     parser.add_argument('--standardize', action='store_true')
     parser.add_argument('--random_state', type=int, default=-1)
+
+    # UoI arguments
+    parser.add_argument('--n_lambdas', type=int, default=50)
+    parser.add_argument('--n_boots_sel', type=int, default=30)
+    parser.add_argument('--n_boots_est', type=int, default=30)
+    parser.add_argument('--selection_frac', type=float, default=0.8)
+    parser.add_argument('--estimation_frac', type=float, default=0.8)
+    parser.add_argument('--stability_selection', type=float, default=0.95)
+    parser.add_argument('--estimation_score', default='log')
 
     parser.add_argument('--verbose', action='store_true')
 
