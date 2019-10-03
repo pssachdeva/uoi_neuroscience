@@ -65,8 +65,8 @@ def main(args):
         for u_idx, unit_idx in enumerate(good_units):
             spike_times = trial.spike_times[unit_idx]
             spike_count = np.count_nonzero(
-                (spike_times - window_left >= t_center_out)
-                & (spike_times <= t_center_out + window_right)
+                (spike_times >= t_center_out - window_left) &
+                (spike_times <= t_center_out + window_right)
             )
             X[t_idx, u_idx] = spike_count
 
