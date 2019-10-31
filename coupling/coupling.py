@@ -1,6 +1,6 @@
 """
 Performs a cross-validated coupling fit on various neuroscience datasets, using
-sci-kit learn.
+sci-kit learn or UoI.
 
 This script calculates and stores coupling models on this dataset using a
 desired fitting procedure.

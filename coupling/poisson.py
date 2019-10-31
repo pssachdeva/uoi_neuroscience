@@ -10,39 +10,13 @@ import h5py
 import glmnet_python
 import numpy as np
 
+from .utils import log_likelihood, deviance, AIC, BIC
+
 from cvglmnet import cvglmnet
 from cvglmnetCoef import cvglmnetCoef
 from neuropacks import ECOG, NHP, PVC11
 from pyuoi.linear_model import UoI_Poisson
 from sklearn.model_selection import StratifiedKFold
-
-
-def log_likelihood(y_true, y_pred):
-    """Calculate the log-likelihood for a Poisson model."""
-    return np.sum(y_true * np.log(y_pred) - y_pred)
-
-
-def deviance(y_true, y_pred):
-    """Calculate the deviance for a Poisson model."""
-    ll_est = log_likelihood(y_true, y_pred)
-    y_true_nz = y_true[y_true != 0]
-    ll_true = log_likelihood(y_true_nz, y_true_nz)
-    return ll_true - ll_est
-
-
-def AIC(y_true, y_pred, n_features):
-    """Calculates the AIC for a Poisson model."""
-    ll = log_likelihood(y_true, y_pred)
-    AIC = 2 * n_features - 2 * ll
-    return AIC
-
-
-def BIC(y_true, y_pred, n_features):
-    """Calculates the BIC for a Poisson model."""
-    ll = log_likelihood(y_true, y_pred)
-    n_samples = y_true.size
-    BIC = np.log(n_samples) * n_features - 2 * ll
-    return BIC
 
 
 def main(args):

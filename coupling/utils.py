@@ -278,3 +278,98 @@ def plot_coupling_grid(fits_path, axes=None):
         )
 
     return axes
+
+
+def log_likelihood(y_true, y_pred):
+    """Calculates the log-likelihood for a Poisson model.
+
+    Parameters
+    ----------
+    y_true : ndarray
+        The true response values.
+
+    y_pred : ndarray
+        The predicted response values, according to the Poisson model.
+
+    Returns
+    -------
+    ll : float
+        The total log-likelihood of the data.
+    """
+    ll = np.sum(y_true * np.log(y_pred) - y_pred)
+    return ll
+
+
+def deviance(y_true, y_pred):
+    """Calculates the deviance for a Poisson model.
+
+    Parameters
+    ----------
+    y_true : ndarray
+        The true response values.
+
+    y_pred : ndarray
+        The predicted response values, according to the Poisson model.
+
+    Returns
+    -------
+    dev : float
+        The total deviance of the data.
+    """
+    # calculate log-likelihood of the predicted values
+    ll_pred = log_likelihood(y_true, y_pred)
+    # calculate log-likelihood of the true data
+    y_true_nz = y_true[y_true != 0]
+    ll_true = log_likelihood(y_true_nz, y_true_nz)
+    # calculate deviance
+    dev = ll_true - ll_pred
+    return dev
+
+
+def AIC(y_true, y_pred, n_features):
+    """Calculates the AIC for a Poisson model.
+
+    Parameters
+    ----------
+    y_true : ndarray
+        The true response values.
+
+    y_pred : ndarray
+        The predicted response values, according to the Poisson model.
+
+    n_features : int
+        The number of non-zero features used in the model.
+
+    Returns
+    -------
+    AIC : float
+        The Akaike Information Criterion for the data.
+    """
+    ll = log_likelihood(y_true, y_pred)
+    AIC = 2 * n_features - 2 * ll
+    return AIC
+
+
+def BIC(y_true, y_pred, n_features):
+    """Calculates the BIC for a Poisson model.
+
+    Parameters
+    ----------
+    y_true : ndarray
+        The true response values.
+
+    y_pred : ndarray
+        The predicted response values, according to the Poisson model.
+
+    n_features : int
+        The number of non-zero features used in the model.
+
+    Returns
+    -------
+    BIC : float
+        The Bayesian Information Criterion for the data.
+    """
+    ll = log_likelihood(y_true, y_pred)
+    n_samples = y_true.size
+    BIC = np.log(n_samples) * n_features - 2 * ll
+    return BIC
