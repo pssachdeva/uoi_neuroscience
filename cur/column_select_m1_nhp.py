@@ -58,9 +58,11 @@ def main(args):
             n_columns = uoi_columns.size
             # perform ordinary CSS
             css_fit = CUR(max_k=max_k)
-            css_fit.fit(Y)
+            css_fit.fit(Y, c=max_k + 10)
             css_columns = np.sort(css_fit.column_indices_[:n_columns])
-
+            print('max k: ', max_k)
+            print('uoi:', n_columns)
+            print('css:', css_fit.column_indices_.size)
             # store column indices
             uoi['columns/' + str(rep) + '/' + str(max_k)] = uoi_columns
             css['columns/' + str(rep) + '/' + str(max_k)] = css_columns

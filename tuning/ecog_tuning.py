@@ -25,15 +25,13 @@ def main(args):
     # get design matrix
     X = ecog.get_design_matrix(
         form=args.form,
-        n_gaussians=args.n_gaussians
-    )
+        n_gaussians=args.n_gaussians)
     # get response matrix
     Y = ecog.get_response_matrix(
         bounds=(40, 60),
         band=args.band,
         electrodes=None,
-        transform=None
-    )
+        transform=None)
     # for stratification of folds
     class_labels = ecog.get_design_matrix(form='id')
 
@@ -66,8 +64,7 @@ def main(args):
         estimation_frac=args.estimation_frac,
         n_lambdas=args.n_lambdas,
         stability_selection=args.stability_selection,
-        estimation_score=args.estimation_score
-    )
+        estimation_score=args.estimation_score)
 
     results_file = h5py.File(args.results_path, 'a')
     group = results_file.create_group(args.results_group)
@@ -96,7 +93,6 @@ if __name__ == '__main__':
     parser.add_argument('--band')
     parser.add_argument('--n_folds', type=int, default=10)
     parser.add_argument('--random_state', type=int, default=-1)
-    parser.add_argument('--transform', default='square_root')
     parser.add_argument('--verbose', action='store_true')
     # fitter object arguments
     parser.add_argument('--normalize', action='store_true')
