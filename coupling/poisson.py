@@ -10,7 +10,7 @@ import h5py
 import glmnet_python
 import numpy as np
 
-from .utils import log_likelihood, deviance, AIC, BIC
+from utils import log_likelihood, deviance, AIC, BIC
 
 from cvglmnet import cvglmnet
 from cvglmnetCoef import cvglmnetCoef
