@@ -52,7 +52,7 @@ def main(args):
             bin_width=args.bin_width,
             region=args.region,
             transform=args.transform)
-        class_labels = None
+        class_labels = np.ones(Y.shape[0])
 
     elif args.dataset == 'PVC11':
         # create data extraction object
