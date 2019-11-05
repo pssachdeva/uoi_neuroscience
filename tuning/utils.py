@@ -4,6 +4,77 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def calculate_selection_ratio(coefs):
+    """Calculate selection ratio for a set of coefficients."""
+    n_max_coefs = coefs.shape[-1]
+    selection_ratio = np.count_nonzero(coefs, axis=-1) / n_max_coefs
+    return selection_ratio
+
+
+def plot_metric_grid(baseline_group, fits_groups, metrics, fax=None):
+    """Analyze a set of fits in a grid of subplots, using a user-provided
+    set of metrics.
+
+    Parameters
+    ----------
+    baseline_group : HDF5 Object
+        The baseline algorithm to compare against.
+
+    fits_groups : list of HDF5 objects
+        A list of the coupling fits to look at.
+
+    metrics : list of strings
+        A list of the metrics to plot in the rows of the subplots.
+
+    fax : tuple of (fig, axes) matplotlib objects
+        If None, a (fig, axes) is created. Otherwise, fax are modified directly.
+
+    Returns
+    -------
+    fax : tuple of (fig, axes) matplotlib objects
+        The (fig, axes) on which the metrics were plotted.
+    """
+    n_algorithms = len(fits_groups)
+    n_metrics = len(metrics)
+
+    if fax is None:
+        fig, axes = plt.subplots(n_metrics, n_algorithms,
+                                 figsize=(3 * n_algorithms, 3 * n_metrics))
+    else:
+        fig, axes = fax
+
+    # iterate over metrics
+    for row_idx, metric in enumerate(metrics):
+        if metric == 'selection_ratio':
+            baseline_coefs = baseline_group['tuning_coefs'][:]
+            baseline_selection_ratio = \
+                calculate_selection_ratio(baseline_coefs).mean(axis=0)
+
+        # iterate over algorithms
+        for col_idx, algorithm in enumerate(fits_groups):
+            if metric == 'selection_ratio':
+                # calculate selection ratio for algorithm
+                coefs = algorithm['tuning_coefs'][:]
+                selection_ratio = calculate_selection_ratio(coefs).mean(axis=0)
+
+                # plot direct comparison
+                axes[row_idx, col_idx].scatter(
+                    baseline_selection_ratio,
+                    selection_ratio,
+                    alpha=0.5,
+                    color='k',
+                    edgecolor='w')
+            else:
+                axes[row_idx, col_idx].scatter(
+                    baseline_group[metric][:].mean(axis=0),
+                    algorithm[metric][:].mean(axis=0),
+                    alpha=0.5,
+                    color='k',
+                    edgecolor='w')
+
+    return fig, axes
+
+
 def plot_metric(
     results_path, metric, x='Lasso', y='UoI_Lasso_R2', fax=None, color='k',
     marker='o'
@@ -50,71 +121,6 @@ def plot_metric(
     results.close()
 
     return fig, ax
-
-
-def plot_tuning_grid(fits_path, base, fax=None):
-    """Plots the selection ratios and scores from the tuning fits."""
-    # create plot
-    if fax is None:
-        fig, axes = plt.subplots(4, 3, figsize=(9, 12))
-    else:
-        fig, axes = fax
-
-    fits = h5py.File(fits_path, 'r')
-
-    # load different fits
-    lasso = fits[base + 'Lasso']
-    uoi_r2 = fits[base + 'UoI_Lasso_R2']
-    uoi_aic = fits[base + 'UoI_Lasso_AIC']
-    uoi_bic = fits[base + 'UoI_Lasso_BIC']
-    uois = [uoi_r2, uoi_aic, uoi_bic]
-
-    n_targets = lasso['tuning_coefs'].shape[-1]
-
-    for idx, algorithm in enumerate(uois):
-        # first column: selection ratios
-        lasso_selection_ratio = np.mean(np.count_nonzero(
-            lasso['tuning_coefs'][:], axis=2
-        )/n_targets, axis=0)
-        algorithm_selection_ratio = np.mean(np.count_nonzero(
-            algorithm['tuning_coefs'][:], axis=2
-        )/n_targets, axis=0)
-        axes[0, idx].scatter(
-            lasso_selection_ratio,
-            algorithm_selection_ratio,
-            alpha=0.5,
-            color='k',
-            edgecolor='w'
-        )
-
-        # second column: explained variance
-        axes[1, idx].scatter(
-            np.mean(lasso['r2'][:], axis=0),
-            np.mean(algorithm['r2'][:], axis=0),
-            alpha=0.5,
-            color='k',
-            edgecolor='w'
-        )
-
-        # third column: Akaike information criterion
-        axes[2, idx].scatter(
-            np.mean(lasso['AIC'][:], axis=0),
-            np.mean(algorithm['AIC'][:], axis=0),
-            alpha=0.5,
-            color='k',
-            edgecolor='w'
-        )
-
-        # fourth column: Bayesian information criterion
-        axes[3, idx].scatter(
-            np.mean(lasso['BIC'][:], axis=0),
-            np.mean(algorithm['BIC'][:], axis=0),
-            alpha=0.5,
-            color='k',
-            edgecolor='w'
-        )
-
-    return fig, axes
 
 
 def plot_retina_strf(
