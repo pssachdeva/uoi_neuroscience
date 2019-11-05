@@ -28,7 +28,7 @@ for idx, monkey in enumerate(monkeys):
 
     subprocess.call([
         'python3', 'poisson.py',
-        '--dataset=PVC11',
+        '--dataset=NHP',
         '--data_path=' + os.path.join(data_base, monkey) + '.mat',
         '--results_path=' + os.path.join(results_base, monkey + '.h5'),
         '--results_group=uoi_poisson_log',
@@ -42,7 +42,7 @@ for idx, monkey in enumerate(monkeys):
 
     subprocess.call([
         'python3', 'poisson.py',
-        '--dataset=PVC11',
+        '--dataset=NHP',
         '--data_path=' + os.path.join(data_base, monkey) + '.mat',
         '--results_path=' + os.path.join(results_base, monkey + '.h5'),
         '--results_group=uoi_poisson_AIC',
@@ -56,7 +56,7 @@ for idx, monkey in enumerate(monkeys):
 
     subprocess.call([
         'python3', 'poisson.py',
-        '--dataset=PVC11',
+        '--dataset=NHP',
         '--data_path=' + os.path.join(data_base, monkey) + '.mat',
         '--results_path=' + os.path.join(results_base, monkey + '.h5'),
         '--results_group=uoi_poisson_BIC',
