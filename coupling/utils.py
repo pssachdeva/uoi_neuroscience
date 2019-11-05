@@ -219,65 +219,75 @@ def plot_metric(
     return ax
 
 
-def plot_coupling_grid(fits_path, axes=None):
-    if axes is None:
-        fig, axes = plt.subplots(4, 3, figsize=(9, 12))
+def calculate_selection_ratio(coefs):
+    """Calculate selection ratio for a set of coefficients."""
+    n_max_coefs = coefs.shape[-1]
+    selection_ratio = np.count_nonzero(coefs, axis=-1) / n_max_coefs
+    return selection_ratio
 
-    fits = h5py.File(fits_path, 'r')
 
-    # load different fits
-    lasso = fits['Lasso']
-    uoi_r2 = fits['UoI_Lasso_R2']
-    uoi_aic = fits['UoI_Lasso_AIC']
-    uoi_bic = fits['UoI_Lasso_BIC']
-    uois = [uoi_r2, uoi_aic, uoi_bic]
+def plot_coupling_grid(baseline_group, fits_groups, metrics, fax=None):
+    """Analyze a set of coupling fits in a grid of subplots, using a user-provided
+    set of metrics.
 
-    n_targets = lasso['coupling_coefs'].shape[-1]
+    Parameters
+    ----------
+    baseline_group : HDF5 Object
+        The baseline algorithm to compare against.
 
-    for idx, algorithm in enumerate(uois):
-        # first column: selection ratios
-        lasso_selection_ratio = np.mean(np.count_nonzero(
-            lasso['coupling_coefs'][:], axis=2
-        )/n_targets, axis=0)
-        algorithm_selection_ratio = np.mean(np.count_nonzero(
-            algorithm['coupling_coefs'][:], axis=2
-        )/n_targets, axis=0)
-        axes[0, idx].scatter(
-            lasso_selection_ratio,
-            algorithm_selection_ratio,
-            alpha=0.5,
-            color='k',
-            edgecolor='w'
-        )
+    fits_groups : list of HDF5 objects
+        A list of the coupling fits to look at.
 
-        # second column: explained variance
-        axes[1, idx].scatter(
-            np.mean(lasso['r2'][:], axis=0),
-            np.mean(algorithm['r2'][:], axis=0),
-            alpha=0.5,
-            color='k',
-            edgecolor='w'
-        )
+    metrics : list of strings
+        A list of the metrics to plot in the rows of the subplots.
 
-        # third column: Akaike information criterion
-        axes[2, idx].scatter(
-            np.mean(lasso['AIC'][:], axis=0),
-            np.mean(algorithm['AIC'][:], axis=0),
-            alpha=0.5,
-            color='k',
-            edgecolor='w'
-        )
+    fax : tuple of (fig, axes) matplotlib objects
+        If None, a (fig, axes) is created. Otherwise, fax are modified directly.
 
-        # fourth column: Bayesian information criterion
-        axes[3, idx].scatter(
-            np.mean(lasso['BIC'][:], axis=0),
-            np.mean(algorithm['BIC'][:], axis=0),
-            alpha=0.5,
-            color='k',
-            edgecolor='w'
-        )
+    Returns
+    -------
+    fax : tuple of (fig, axes) matplotlib objects
+        The (fig, axes) on which the metrics were plotted.
+    """
+    n_algorithms = len(fits_groups)
+    n_metrics = len(metrics)
 
-    return axes
+    if fax is None:
+        fig, axes = plt.subplots(n_metrics, n_algorithms,
+                                 figsize=(3 * n_algorithms, 3 * n_metrics))
+    else:
+        fig, axes = fax
+
+    # iterate over metrics
+    for row_idx, metric in enumerate(metrics):
+        if metric == 'selection_ratio':
+            baseline_coefs = baseline_group['coupling_coefs'][:]
+            baseline_selection_ratio = \
+                calculate_selection_ratio(baseline_coefs).mean(axis=0)
+
+        # iterate over algorithms
+        for col_idx, algorithm in enumerate(fits_groups):
+            if metric == 'selection_ratio':
+                # calculate selection ratio for algorithm
+                coefs = algorithm['coupling_coefs'][:]
+                selection_ratio = calculate_selection_ratio(coefs).mean(axis=0)
+
+                # plot direct comparison
+                axes[row_idx, col_idx].scatter(
+                    baseline_selection_ratio,
+                    selection_ratio,
+                    alpha=0.5,
+                    color='k',
+                    edgecolor='w')
+            else:
+                axes[row_idx, col_idx].scatter(
+                    baseline_group[metric][:].mean(axis=0),
+                    algorithm[metric][:].mean(axis=0),
+                    alpha=0.5,
+                    color='k',
+                    edgecolor='w')
+
+    return fig, axes
 
 
 def log_likelihood(y_true, y_pred):
