@@ -21,6 +21,7 @@ def main(args):
     n_frames_per_window = None
 
     if rank == 0:
+        print('Getting data')
         # gather data if we're in the central rank
         retina = Retina(data_path=args.data_path,
                         random_path=args.random_path)
@@ -49,12 +50,19 @@ def main(args):
         r2_test = np.zeros(n_frames_per_window)
         aic = np.zeros(n_frames_per_window)
         bic = np.zeros(n_frames_per_window)
+        print('Got data')
+    else:
+        print('Rank ', rank)
 
     # broadcast to other ranks
     stimulus_train = Bcast_from_root(stimulus_train, comm)
     response_train = Bcast_from_root(response_train, comm)
     n_frames_per_window = comm.bcast(n_frames_per_window, root=0)
 
+    if rank != 0:
+        print('Got data, rank ' + str(rank))
+        print(n_frames_per_window)
+        print('----')
     if args.method == 'UoI_Lasso':
         fitter = UoI_Lasso(
             standardize=args.standardize,
