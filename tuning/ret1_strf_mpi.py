@@ -85,7 +85,7 @@ def main(args):
     # iterate over frames in STRF
     for frame in range(n_frames_per_window):
         if rank == 0:
-            print('Frame: ' + str(frame), flush=True)
+            print('Frame: ', str(frame))
             t = time.time()
 
         fitter.fit(stimulus_train.T, response_train)
