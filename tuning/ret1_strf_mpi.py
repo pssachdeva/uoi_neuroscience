@@ -21,7 +21,7 @@ def main(args):
     n_frames_per_window = None
 
     if rank == 0:
-        print('Getting data')
+        print('Getting data...')
         # gather data if we're in the central rank
         retina = Retina(data_path=args.data_path,
                         random_path=args.random_path)
@@ -50,19 +50,13 @@ def main(args):
         r2_test = np.zeros(n_frames_per_window)
         aic = np.zeros(n_frames_per_window)
         bic = np.zeros(n_frames_per_window)
-        print('Got data')
-    else:
-        print('Rank ', rank)
+        print('Broadcasting data...')
 
     # broadcast to other ranks
     stimulus_train = Bcast_from_root(stimulus_train, comm)
     response_train = Bcast_from_root(response_train, comm)
     n_frames_per_window = comm.bcast(n_frames_per_window, root=0)
 
-    if rank != 0:
-        print('Got data, rank ' + str(rank))
-        print(n_frames_per_window)
-        print('----')
     if args.method == 'UoI_Lasso':
         fitter = UoI_Lasso(
             standardize=args.standardize,
@@ -93,7 +87,7 @@ def main(args):
     # iterate over frames in STRF
     for frame in range(n_frames_per_window):
         if rank == 0:
-            print('Frame: ', str(frame))
+            print('Fitting Frame: ', str(frame))
             t = time.time()
 
         fitter.fit(stimulus_train.T, response_train)
@@ -119,7 +113,7 @@ def main(args):
 
             # roll back test set window
             response_test = np.roll(response_test, -1)
-            print(time.time() - t)
+            print('Frame ', frame, 'took ', time.time() - t, ' seconds.')
 
         response_train = np.roll(response_train, -1)
 
