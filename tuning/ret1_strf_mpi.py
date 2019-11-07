@@ -9,6 +9,7 @@ from neuropacks import RET1 as Retina
 from pyuoi.linear_model import UoI_Lasso, UoI_Poisson
 from pyuoi.mpi_utils import Bcast_from_root
 from pyuoi.utils import log_likelihood_glm, AIC, BIC
+from sklearn.linear_model import LassoCV
 from sklearn.metrics import r2_score
 
 
@@ -57,7 +58,14 @@ def main(args):
     response_train = Bcast_from_root(response_train, comm)
     n_frames_per_window = comm.bcast(n_frames_per_window, root=0)
 
-    if args.method == 'UoI_Lasso':
+    if args.method == 'Lasso':
+        fitter = LassoCV(
+            normalize=args.standardize,
+            fit_intercept=True,
+            cv=5,
+            max_iter=10000)
+
+    elif args.method == 'UoI_Lasso':
         fitter = UoI_Lasso(
             standardize=args.standardize,
             n_boots_sel=args.n_boots_sel,
