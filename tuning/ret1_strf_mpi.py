@@ -97,6 +97,8 @@ def main(args):
         if rank == 0:
             print('Fitting Frame: ', str(frame))
             t = time.time()
+        else:
+            print('Frame ', frame, ', Rank ', rank)
 
         fitter.fit(stimulus_train.T, response_train)
 
