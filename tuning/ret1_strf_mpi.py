@@ -101,6 +101,7 @@ def main(args):
             print('Frame ', frame, ', Rank ', rank)
 
         fitter.fit(stimulus_train.T, response_train)
+        block = None
 
         if rank == 0:
             # store the fits
@@ -124,8 +125,10 @@ def main(args):
             # roll back test set window
             response_test = np.roll(response_test, -1)
             print('Frame ', frame, 'took ', time.time() - t, ' seconds.')
+            block = np.zeros(2)
 
         response_train = np.roll(response_train, -1)
+        block = Bcast_from_root(response_train, comm)
 
     if rank == 0:
         results = h5py.File(args.results_path, 'a')
