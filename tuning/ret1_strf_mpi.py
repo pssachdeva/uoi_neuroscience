@@ -58,50 +58,49 @@ def main(args):
     response_train = Bcast_from_root(response_train, comm)
     n_frames_per_window = comm.bcast(n_frames_per_window, root=0)
 
-    if args.method == 'Lasso':
-        fitter = LassoCV(
-            normalize=args.standardize,
-            fit_intercept=True,
-            cv=5,
-            max_iter=10000)
-
-    elif args.method == 'UoI_Lasso':
-        fitter = UoI_Lasso(
-            standardize=args.standardize,
-            n_boots_sel=args.n_boots_sel,
-            n_boots_est=args.n_boots_est,
-            selection_frac=args.selection_frac,
-            estimation_frac=args.estimation_frac,
-            n_lambdas=args.n_lambdas,
-            stability_selection=args.stability_selection,
-            estimation_score=args.estimation_score,
-            comm=comm)
-
-    elif args.method == 'UoI_Poisson':
-        fitter = UoI_Poisson(
-            standardize=args.standardize,
-            n_boots_sel=args.n_boots_sel,
-            n_boots_est=args.n_boots_est,
-            selection_frac=args.selection_frac,
-            estimation_frac=args.estimation_frac,
-            n_lambdas=args.n_lambdas,
-            stability_selection=args.stability_selection,
-            estimation_score=args.estimation_score,
-            comm=comm)
-
-    else:
-        raise ValueError('Method not available.')
-
     # iterate over frames in STRF
-    for frame in range(n_frames_per_window):
+    for frame in range(5, 8):
         if rank == 0:
             print('Fitting Frame: ', str(frame))
             t = time.time()
         else:
             print('Frame ', frame, ', Rank ', rank)
 
+        if args.method == 'Lasso':
+            fitter = LassoCV(
+                normalize=args.standardize,
+                fit_intercept=True,
+                cv=5,
+                max_iter=10000)
+
+        elif args.method == 'UoI_Lasso':
+            fitter = UoI_Lasso(
+                standardize=args.standardize,
+                n_boots_sel=args.n_boots_sel,
+                n_boots_est=args.n_boots_est,
+                selection_frac=args.selection_frac,
+                estimation_frac=args.estimation_frac,
+                n_lambdas=args.n_lambdas,
+                stability_selection=args.stability_selection,
+                estimation_score=args.estimation_score,
+                comm=comm)
+
+        elif args.method == 'UoI_Poisson':
+            fitter = UoI_Poisson(
+                standardize=args.standardize,
+                n_boots_sel=args.n_boots_sel,
+                n_boots_est=args.n_boots_est,
+                selection_frac=args.selection_frac,
+                estimation_frac=args.estimation_frac,
+                n_lambdas=args.n_lambdas,
+                stability_selection=args.stability_selection,
+                estimation_score=args.estimation_score,
+                comm=comm)
+
+        else:
+            raise ValueError('Method not available.')
+
         fitter.fit(stimulus_train.T, response_train)
-        block = None
 
         if rank == 0:
             # store the fits
@@ -123,12 +122,11 @@ def main(args):
             bic[frame] = BIC(ll, n_selected_features, n_samples)
 
             # roll back test set window
+            response_train = np.roll(response_train, -1)
             response_test = np.roll(response_test, -1)
             print('Frame ', frame, 'took ', time.time() - t, ' seconds.')
-            block = np.zeros(2)
 
-        response_train = np.roll(response_train, -1)
-        block = Bcast_from_root(response_train, comm)
+        response_train = Bcast_from_root(response_train, comm)
 
     if rank == 0:
         results = h5py.File(args.results_path, 'a')
