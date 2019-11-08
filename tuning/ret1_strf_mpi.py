@@ -59,7 +59,7 @@ def main(args):
     n_frames_per_window = comm.bcast(n_frames_per_window, root=0)
 
     # iterate over frames in STRF
-    for frame in range(5, 8):
+    for frame in range(10):
         if rank == 0:
             print('Fitting Frame: ', str(frame))
             t = time.time()
